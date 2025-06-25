@@ -32,7 +32,7 @@ const Header = () => {
               <span>Thông Báo</span>
             </span>
             <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              ?
+              
             </span>
           </div>
           <span className="flex items-center space-x-1 hover:underline">
