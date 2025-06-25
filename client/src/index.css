@@ -1,15 +1,4 @@
-.has-bg-orange {
-  background-color: #FC5C31 !important;
-}
 
-.button.is-orange {
-  background-color: #FC5C31;
-  color: white;
-  border: none;
-}
-.button.is-orange:hover {
-  background-color: darkorange;
-}
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+
+@import "tailwindcss";
