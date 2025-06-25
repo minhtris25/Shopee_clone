@@ -82,4 +82,15 @@ Nếu không có lỗi nào, quá trình rebase hoàn tất.
 Push lại code lên GitHub (force push):
 git push origin <tên-nhánh-vừa-tạo> -f
 
+client
+
+npm i
+
+npm run dev
+
+server
+
+composer install 
+
+php artisan serve
 
