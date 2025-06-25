@@ -1,9 +1,24 @@
-import React from 'react';
 
-export default function Home() {
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import ProductList from '../components/productlist';
+import Slider from '../components/Slider';
+import CategoryList from '../components/CategoryList';
+
+const Home = () => {
   return (
     <div>
-      <h1>Trang chủ</h1>
+      <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <Slider />
+        <CategoryList />
+        <ProductList />
+      </main>
+      <Footer />
     </div>
-  );
+    </div>
+  )
 }
+
+export default Home
