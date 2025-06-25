@@ -40,7 +40,7 @@ Route::prefix('home')->group(function () {
 
 
     Route::post('/login', [AuthController::class, 'login']);
-
+    Route::post('/register', [AuthController::class, 'register']);
 
 // Cart routes (auth required)
 Route::middleware('auth:sanctum')->prefix('cart')->group(function () {
@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->prefix('cart')->group(function () {
 
 // Auth route
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/products/search', [ProductController::class, 'search']);
 
