@@ -248,3 +248,12 @@ export const cartItems = [
     image: '/product2.jpg',
   },
 ];
+
+
+export const vouchers = [
+  { id: 1, type: "percent", value: 10, label: "Giảm 10%" },
+  { id: 2, type: "percent", value: 5, label: "Giảm 5%" },
+  { id: 3, type: "money", value: 20000, label: "Giảm ₫20k" },
+  { id: 4, type: "money", value: 40000, label: "Giảm ₫40k" },
+  { id: 5, type: "money", value: 80000, label: "Giảm ₫80k" },
+];

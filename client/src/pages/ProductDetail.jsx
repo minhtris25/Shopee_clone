@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { products } from "../data/mockData";
+import { products, vouchers } from "../data/mockData";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai"; // Cần cài react-icons
+import { FaTruck, FaShieldAlt } from "react-icons/fa";
 
 const ProductDetail = () => {
   const product = products[0]; // Lấy tạm 1 sản phẩm mẫu
   const [quantity, setQuantity] = useState(1);
+
+  // Dữ liệu đánh giá ảo
+  const fakeRating = 4.5;
+  const fakeReviewCount = 1200;
+  const fakeSoldCount = 2500;
 
   const handleAddToCart = () => {
     alert(`Đã thêm ${quantity} sản phẩm vào giỏ`);
@@ -31,8 +38,67 @@ const ProductDetail = () => {
             {/* Thông tin sản phẩm */}
             <div className="md:w-1/2 space-y-4">
               <h1 className="text-xl font-bold text-gray-800">{product.name}</h1>
+
+              {/* Đánh giá ảo */}
+              <div className="flex items-center text-sm text-gray-600 space-x-2">
+                <div className="flex items-center text-yellow-400">
+                  {Array.from({ length: 5 }, (_, i) =>
+                    i < Math.floor(fakeRating) ? (
+                      <AiFillStar key={i} />
+                    ) : (
+                      <AiOutlineStar key={i} />
+                    )
+                  )}
+                </div>
+                <span>{fakeRating} | {fakeReviewCount.toLocaleString()} đánh giá</span>
+                <span className="text-gray-400">•</span>
+                <span>Đã bán {fakeSoldCount.toLocaleString()}</span>
+              </div>
+
               <div className="text-2xl text-red-600 font-semibold">
                 ₫{product.price.toLocaleString()}
+              </div>
+
+              {/* Voucher */}
+              <div className="flex items-center space-x-2">
+                <span className="w-32 text-gray-500">Voucher Của Shop</span>
+                <div className="flex flex-wrap gap-2">
+                  {vouchers.slice(0, 4).map((voucher) => (
+                    <span
+                      key={voucher.id}
+                      className="bg-red-100 text-red-500 px-2 py-1 rounded text-xs"
+                    >
+                      {voucher.label}
+                    </span>
+                  ))}
+                  <span className="text-red-600 text-xs cursor-pointer">Xem tất cả ▾</span>
+                </div>
+              </div>
+
+              {/* Vận chuyển */}
+              <div className="flex items-start space-x-2 mt-4 text-sm text-gray-700">
+                <span className="w-32 text-gray-500">Vận Chuyển</span>
+                <div>
+                  <p className="flex items-center gap-1">
+                    <FaTruck className="text-green-500" />
+                    Nhận từ <strong>28 Th06 - 1 Th07</strong>, phí giao <strong>₫0</strong>
+                    <span className="ml-1 text-blue-500 cursor-pointer">›</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Tặng Voucher ₫15.000 nếu đơn giao sau thời gian trên.
+                  </p>
+                </div>
+              </div>
+
+              {/* An Tâm Mua Sắm */}
+              <div className="flex items-start space-x-2 mt-2 text-sm text-gray-700">
+                <span className="w-32 text-gray-500">An Tâm Mua Sắm</span>
+                <div className="flex items-start gap-2">
+                  <FaShieldAlt className="text-red-500 mt-1" />
+                  <p>
+                    Trả hàng miễn phí 15 ngày · Chính hãng 100% · Miễn phí vận chuyển · Bảo vệ người mua
+                  </p>
+                </div>
               </div>
 
               {/* Chọn số lượng */}
@@ -53,13 +119,21 @@ const ProductDetail = () => {
                 </button>
               </div>
 
-              {/* Nút thêm vào giỏ */}
-              <button
-                onClick={handleAddToCart}
-                className="mt-4 w-full bg-[#F53D2D] hover:bg-[#F53D2D] text-white font-semibold py-2 rounded"
-              >
-                Thêm vào giỏ hàng
-              </button>
+              {/* Nút thêm vào giỏ và mua ngay */}
+              <div className="flex space-x-4 mt-4">
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 border border-[#F53D2D] text-[#F53D2D] hover:bg-[#fff5f2] font-semibold py-2 rounded"
+                >
+                  Thêm vào giỏ hàng
+                </button>
+                <button
+                  onClick={() => alert("Chuyển đến trang thanh toán")}
+                  className="flex-1 bg-[#F53D2D] hover:bg-[#e33326] text-white font-semibold py-2 rounded"
+                >
+                  Mua ngay
+                </button>
+              </div>
             </div>
           </div>
         </div>
