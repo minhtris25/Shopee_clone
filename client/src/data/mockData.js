@@ -257,3 +257,68 @@ export const vouchers = [
   { id: 4, type: "money", value: 40000, label: "Giảm ₫40k" },
   { id: 5, type: "money", value: 80000, label: "Giảm ₫80k" },
 ];
+
+export const orders = [
+  {
+    id: 101,
+    user_id: 1,
+    customer_name: "Nguyễn Văn A",
+    shop: "bvbsport.vn",
+    canceled: false,
+    products: [
+      {
+        product_id: 1,
+        name: "Áo đấu BVB",
+        qty: 2,
+        price: 300000,
+        original_price: 350000,
+        image: "https://shop.bvb.de/_next/image?url=https%3A%2F%2Fcom-tradebyte-core-tbone-media-live.s3.eu-central-1.amazonaws.com%2Fmedia%2F1775%2F83912-1b73527656435.jpg&w=384&q=50",
+        option: "Size L",
+      },
+      {
+        product_id: 2,
+        name: "Áo phao",
+        qty: 1,
+        price: 100000,
+        original_price: 120000,
+        image: "https://shop.bvb.de/_next/image?url=https%3A%2F%2Fcom-tradebyte-core-tbone-media-live.s3.eu-central-1.amazonaws.com%2Fmedia%2F1775%2F86400-af23149912666.jpg&w=384&q=50",
+        option: "Màu kem nâu",
+      },
+    ],
+    subtotal: 700000,
+    voucher_id: 1,
+    discount_type: "percent",
+    discount_value: 10,
+    discount_amount: 70000,
+    total: 630000,
+    created_at: "2025-06-26T13:30:00",
+    status: "processing",
+  },
+  {
+    id: 102,
+    user_id: 2,
+    customer_name: "Trần Thị B",
+    shop: "bvbgift.vn",
+    canceled: true,
+    products: [
+      {
+        product_id: 3,
+        name: "Quần nỉ",
+        qty: 3,
+        price: 50000,
+        original_price: 60000,
+        image: "https://shop.bvb.de/_next/image?url=https%3A%2F%2Fcom-tradebyte-core-tbone-media-live.s3.eu-central-1.amazonaws.com%2Fmedia%2F1775%2F83222-84e8460203627.jpg&w=384&q=50",
+        option: "Màu kem",
+      },
+    ],
+    subtotal: 150000,
+    voucher_id: 3,
+    discount_type: "money",
+    discount_value: 20000,
+    discount_amount: 20000,
+    total: 130000,
+    created_at: "2025-06-25T09:10:00",
+    status: "completed",
+  },
+];
+
