@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductList from "./components/productlist";
 import Login from "./pages/Login";
 import Register from "./pages/Register"; // Uncomment if you have a Register page
-
+import Product from "./pages/Product";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
@@ -15,6 +15,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/product" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/" element={<ProductList />} />
         <Route path="/register" element={<Register />} />

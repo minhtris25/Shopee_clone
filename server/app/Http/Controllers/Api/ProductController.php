@@ -8,6 +8,37 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    public function recommendByCategory(Request $request)
+    {
+        $query = Product::with(['category', 'seller']);
+
+        // Xử lý sắp xếp
+        $sortBy = $request->input('sort_by', 'lienQuan');
+        switch ($sortBy) {
+            case 'moiNhat':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'banChay':
+                $query->orderBy('sold', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'lienQuan':
+            default:
+                $query->orderBy('id', 'desc');
+                break;
+        }
+
+        // Phân trang
+        $perPage = $request->input('per_page', 16);
+        $products = $query->paginate($perPage);
+
+        return response()->json($products);
+    }
     public function index()
     {
         $products = Product::with(['category', 'seller'])->get();

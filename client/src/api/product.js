@@ -1,5 +1,21 @@
 // src/api/product.js
 import axiosClient from './axios';
 
-export const fetchRecommendedProducts = (page = 1) =>
-  axiosClient.get(`/home/recommend-by-category?page=${page}`).then(res => res.data);
+export const fetchRecommendedProducts = async (params = {}) => {
+  try {
+    const response = await axiosClient.get('/home/recommend-by-category', {
+      params: {
+        page: params.page || 1,
+        sort_by: params.sort_by || 'lienQuan',
+        per_page: params.per_page || 16,
+      },
+      headers: {
+        'Cache-Control': 'no-cache', // Vô hiệu hóa cache
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recommended products:', error);
+    throw error;
+  }
+};

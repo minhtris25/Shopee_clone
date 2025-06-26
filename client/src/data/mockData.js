@@ -78,7 +78,7 @@ export const products = [
   {
     id: 2,
     name: "Áo thun Shopee",
-    price: 120000,
+    price: 130000,
     quantity: 1,
     image: "/product1.jpg",
     stock: 20,
@@ -137,6 +137,226 @@ export const products = [
   },
   {
     id: 8,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id: 9,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id: 10,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  11,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  12,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   13,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  14,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   15,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  16,
+    name: "Áo thun Shopee",
+    price: 190000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   17,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   18,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   19,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:    20,
+    name: "Áo thun Shopee",
+    price: 120900,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  21,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   22,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:    23,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:    24,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:     25,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:  26,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:   27,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:    28,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:     29,
+    name: "Áo thun Shopee",
+    price: 120000,
+    quantity: 1,
+    image: "/product1.jpg",
+    stock: 20,
+    category: "Thời trang nam",
+    description: "Áo thun Shopee chính hãng, chất vải thoáng mát, dễ mặc."
+  },
+  {
+    id:     30,
     name: "Áo thun Shopee",
     price: 120000,
     quantity: 1,

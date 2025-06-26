@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -46,15 +45,40 @@ class HomeController extends Controller
         //
     }
 
-    public function recommendByCategory()
+    public function recommendByCategory(Request $request)
     {
-        // Trả về tất cả sản phẩm, hoặc giới hạn số lượng
-        return response()->json(Product::paginate(12));
+        $query = Product::with(['category', 'seller']);
+
+        // Xử lý sắp xếp
+        $sortBy = $request->input('sort_by', 'lienQuan');
+        switch ($sortBy) {
+            case 'moiNhat':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'banChay':
+                $query->orderBy('sold', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'lienQuan':
+            default:
+                $query->orderBy('id', 'desc');
+                break;
+        }
+
+        // Phân trang
+        $perPage = $request->input('per_page', 12);
+        $products = $query->paginate($perPage);
+
+        return response()->json($products);
     }
 
     public function getRecommendByCategory()
     {
-        //  
+        //
     }
 }
-
