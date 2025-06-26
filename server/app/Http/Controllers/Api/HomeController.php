@@ -49,7 +49,7 @@ class HomeController extends Controller
     public function recommendByCategory()
     {
         // Trả về tất cả sản phẩm, hoặc giới hạn số lượng
-        return response()->json(Product::paginate(8));
+        return response()->json(Product::paginate(12));
     }
 
     public function getRecommendByCategory()
