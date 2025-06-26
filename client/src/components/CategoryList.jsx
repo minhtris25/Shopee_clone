@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
-import { categories } from '../data/mockData';
+import React, { useRef, useEffect, useState } from "react";
+import { fetchCategories } from "../api/category";
+import axios from "axios";
 
 const chunkCategories = (arr, size) => {
   const result = [];
@@ -11,33 +12,40 @@ const chunkCategories = (arr, size) => {
 
 const CategoryList = () => {
   const scrollRef = useRef(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then((res) => {
+        if (res.success) setCategories(res.data);
+      })
+      .catch((err) => console.error("Lỗi khi gọi API:", err));
+  }, []);
 
   const scroll = (direction) => {
     const container = scrollRef.current;
     const scrollAmount = 1000;
-    if (direction === 'left') {
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    if (direction === "left") {
+      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
     } else {
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
-  const categoryPages = chunkCategories(categories, 20); // mỗi page gồm 20 category
+  const categoryPages = chunkCategories(categories, 20);
 
   return (
     <div className="bg-[#f5f5f5] py-6">
       <div className="max-w-7xl mx-auto relative px-4">
         <h2 className="text-red-600 font-semibold text-lg mb-4">DANH MỤC</h2>
 
-        {/* Nút mũi tên trái */}
         <button
-          onClick={() => scroll('left')}
+          onClick={() => scroll("left")}
           className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:scale-110"
         >
           &#8592;
         </button>
 
-        {/* Scrollable container */}
         <div
           ref={scrollRef}
           className="flex overflow-x-auto gap-6 scrollbar-hide"
@@ -62,9 +70,8 @@ const CategoryList = () => {
           ))}
         </div>
 
-        {/* Nút mũi tên phải */}
         <button
-          onClick={() => scroll('right')}
+          onClick={() => scroll("right")}
           className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:scale-110"
         >
           &#8594;
@@ -73,6 +80,5 @@ const CategoryList = () => {
     </div>
   );
 };
-
 
 export default CategoryList;
