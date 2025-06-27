@@ -57,3 +57,5 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/products/search', [ProductController::class, 'search']);
 
+
+
