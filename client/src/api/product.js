@@ -23,3 +23,9 @@ export const fetchRecommendedProducts = async (params = {}) => {
 export const fetchProductById = (id) => {
   return axiosClient.get(`/product/${id}`);
 };
+
+export const searchProducts = (q) => {
+  return axiosClient.get('/products/search', {
+    params: { q },
+  });
+};

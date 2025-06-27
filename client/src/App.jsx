@@ -9,9 +9,11 @@ import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Order from "./pages/Order";
+import SearchResults from './pages/SearchResults';
 import SellerDashboard from "./seller/SellerDashboard";
 import ChatFloatingButton from "./components/ChatFloatingButton";
 import ChatWindow from "./components/ChatWindow";
+
 
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false); // State được định nghĩa ở đây
@@ -30,6 +32,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/detail/:id" element={<ProductDetail />} />
         <Route path="/order" element={<Order/>} />
+        <Route path="/products/search" element={<SearchResults />} />
         <Route path="/seller" element={<SellerDashboard />} />
       </Routes>
        <ChatFloatingButton onClick={toggleChat} />
