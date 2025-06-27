@@ -3,15 +3,18 @@
     use App\Http\Controllers\Api\HomeController;
     use App\Http\Controllers\Api\CartItemController;
     use App\Http\Controllers\Api\AuthController;
-    use Illuminate\Http\Request;
-    use App\Http\Controllers\Api\SellerProductController;
 
+
+    use Illuminate\Http\Request;
+
+    use App\Http\Controllers\Api\SellerProductController;
     use App\Http\Controllers\Api\ProductController;
     use App\Http\Controllers\Api\ReviewController;
 
 
 // Product & Review routes
 Route::prefix('products')->group(function () {
+    Route::get('search', [ProductController::class, 'search']);
     Route::get('/', [ProductController::class, 'index']);
     Route::post('/', [ProductController::class, 'store']);
     Route::get('{id}', [ProductController::class, 'show']);
@@ -59,6 +62,9 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
     return $request->user();
 });
 Route::get('/products/search', [ProductController::class, 'search']);
+
+
+
 
 
 
