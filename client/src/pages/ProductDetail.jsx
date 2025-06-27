@@ -1,45 +1,89 @@
-import React, { useState } from 'react';
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { products, vouchers } from "../data/mockData";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai"; // Cần cài react-icons
-import { FaTruck, FaShieldAlt } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { vouchers } from '../data/mockData';
+import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
+import { FaTruck, FaShieldAlt } from 'react-icons/fa';
 
 const ProductDetail = () => {
-  const product = products[0]; // Lấy tạm 1 sản phẩm mẫu
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-  // Dữ liệu đánh giá ảo
-  const fakeRating = 4.5;
-  const fakeReviewCount = 1200;
-  const fakeSoldCount = 2500;
+  useEffect(() => {
+    fetch(`http://localhost:8000/api/product/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi khi lấy sản phẩm:", err);
+        setLoading(false);
+      });
+  }, [id]);
 
   const handleAddToCart = () => {
-    alert(`Đã thêm ${quantity} sản phẩm vào giỏ`);
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingIndex = cart.findIndex((item) => item.id === product.id);
+    if (existingIndex !== -1) {
+      cart[existingIndex].quantity += quantity;
+    } else {
+      cart.push({
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        quantity: quantity,
+        thumbnail: product.thumbnail,
+      });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
   };
+
+
+  const fakeRating = 4.5;
+  const fakeReviewCount = 1200;
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="text-center py-20">Đang tải sản phẩm...</div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!product) {
+    return (
+      <>
+        <Header />
+        <div className="text-center py-20 text-red-500">Không tìm thấy sản phẩm</div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-
       <main className="flex-grow">
         <div className="max-w-6xl mx-auto px-4 py-6 bg-white mt-6 rounded shadow">
-          {/* PHẦN TRÊN */}
           <div className="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-8">
-            {/* Hình ảnh sản phẩm */}
             <div className="md:w-1/2">
               <img
-                src={product.image}
+                src={product.thumbnail || "/assets/no-image.png"}
                 alt={product.name}
                 className="w-full h-auto object-cover rounded"
               />
             </div>
-
-            {/* Thông tin sản phẩm */}
             <div className="md:w-1/2 space-y-4">
               <h1 className="text-xl font-bold text-gray-800">{product.name}</h1>
-
-              {/* Đánh giá ảo */}
               <div className="flex items-center text-sm text-gray-600 space-x-2">
                 <div className="flex items-center text-yellow-400">
                   {Array.from({ length: 5 }, (_, i) =>
@@ -52,14 +96,11 @@ const ProductDetail = () => {
                 </div>
                 <span>{fakeRating} | {fakeReviewCount.toLocaleString()} đánh giá</span>
                 <span className="text-gray-400">•</span>
-                <span>Đã bán {fakeSoldCount.toLocaleString()}</span>
+                <span>Đã bán {product.sold || 0}</span>
               </div>
-
               <div className="text-2xl text-red-600 font-semibold">
-                ₫{product.price.toLocaleString()}
+                ₫{Number(product.price).toLocaleString('vi-VN')}
               </div>
-
-              {/* Voucher */}
               <div className="flex items-center space-x-2">
                 <span className="w-32 text-gray-500">Voucher Của Shop</span>
                 <div className="flex flex-wrap gap-2">
@@ -74,23 +115,18 @@ const ProductDetail = () => {
                   <span className="text-red-600 text-xs cursor-pointer">Xem tất cả ▾</span>
                 </div>
               </div>
-
-              {/* Vận chuyển */}
               <div className="flex items-start space-x-2 mt-4 text-sm text-gray-700">
                 <span className="w-32 text-gray-500">Vận Chuyển</span>
                 <div>
                   <p className="flex items-center gap-1">
                     <FaTruck className="text-green-500" />
                     Nhận từ <strong>28 Th06 - 1 Th07</strong>, phí giao <strong>₫0</strong>
-                    <span className="ml-1 text-blue-500 cursor-pointer">›</span>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Tặng Voucher ₫15.000 nếu đơn giao sau thời gian trên.
                   </p>
                 </div>
               </div>
-
-              {/* An Tâm Mua Sắm */}
               <div className="flex items-start space-x-2 mt-2 text-sm text-gray-700">
                 <span className="w-32 text-gray-500">An Tâm Mua Sắm</span>
                 <div className="flex items-start gap-2">
@@ -100,8 +136,6 @@ const ProductDetail = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Chọn số lượng */}
               <div className="flex items-center space-x-4">
                 <span className="text-sm">Số lượng:</span>
                 <button
@@ -118,8 +152,6 @@ const ProductDetail = () => {
                   +
                 </button>
               </div>
-
-              {/* Nút thêm vào giỏ và mua ngay */}
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={handleAddToCart}
@@ -138,37 +170,22 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* PHẦN DƯỚI: Chi tiết & Gợi ý */}
+        {/* Chi tiết sản phẩm */}
         <div className="max-w-6xl mx-auto px-4 py-6 bg-white mt-6 rounded shadow space-y-4">
           <h2 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h2>
           <div className="text-sm text-gray-700">
-            <p><strong>Danh mục:</strong> {product.category || "Thời trang"}</p>
-            <p><strong>Số lượng trong kho:</strong> {product.stock || 100}</p>
+            <p><strong>Danh mục:</strong> Chưa phân loại</p>
+            <p><strong>Số lượng trong kho:</strong> {product.stock || 0}</p>
           </div>
 
           <div>
             <h3 className="font-semibold mt-4 mb-2">Mô tả sản phẩm</h3>
             <p className="text-sm text-gray-700 leading-relaxed">
-              {product.description || "Đây là mô tả chi tiết của sản phẩm. Có thể cập nhật mô tả tại file mockData.js"}
+              {product.description || "Không có mô tả sản phẩm."}
             </p>
           </div>
         </div>
-
-        {/* GỢI Ý SẢN PHẨM */}
-        <div className="max-w-6xl mx-auto px-4 py-6 bg-white mt-6 rounded shadow">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Sản phẩm gợi ý</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {products.slice(1, 7).map((item) => (
-              <div key={item.id} className="bg-white rounded shadow p-2">
-                <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded" />
-                <div className="text-sm font-semibold mt-1 truncate">{item.name}</div>
-                <div className="text-red-600 font-bold text-sm">₫{item.price.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </main>
-
       <Footer />
     </div>
   );

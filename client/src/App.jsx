@@ -1,7 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProductList from "./components/productlist";
+import ProductList from "./components/ProductList";
 import Login from "./pages/Login";
 import Register from "./pages/Register"; // Uncomment if you have a Register page
 import Product from "./pages/Product";
@@ -20,7 +20,7 @@ const App = () => {
         <Route path="/" element={<ProductList />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/detail" element={<ProductDetail />} />
+        <Route path="/detail/:id" element={<ProductDetail />} />
         <Route path="/order" element={<Order/>} />
       </Routes>
     </Router>

@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from "react";
 import HeaderCart from "../components/HeaderCart";
 import Footer from "../components/Footer";
-import { cartItems as mockCartItems } from "../data/mockData";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(mockCartItems);
+  // Khởi tạo từ localStorage
+  const [cartItems, setCartItems] = useState(() => {
+    const storedCart = localStorage.getItem("cart");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+
   const [selectedItems, setSelectedItems] = useState([]);
 
   const allSelected = selectedItems.length === cartItems.length;
@@ -21,18 +25,22 @@ const Cart = () => {
   };
 
   const updateQuantity = (id, delta) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
+    setCartItems((prev) => {
+      const newCart = prev.map((item) =>
         item.id === id
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
-      )
-    );
+      );
+      localStorage.setItem("cart", JSON.stringify(newCart));
+      return newCart;
+    });
   };
 
   const handleDeleteItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    const newCart = cartItems.filter((item) => item.id !== id);
+    setCartItems(newCart);
     setSelectedItems((prev) => prev.filter((item) => item.id !== id));
+    localStorage.setItem("cart", JSON.stringify(newCart));
   };
 
   const total = useMemo(() => {
@@ -76,14 +84,14 @@ const Cart = () => {
                   onChange={() => toggleSelectItem(item)}
                 />
                 <img
-                  src={item.image}
+                  src={item.thumbnail || item.image}
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded"
                 />
                 <span>{item.name}</span>
               </div>
               <div className="w-1/6 text-center text-red-600 font-semibold">
-                ₫{item.price.toLocaleString()}
+                ₫{Number(item.price).toLocaleString()}
               </div>
               <div className="w-1/6 text-center flex items-center justify-center space-x-2">
                 <button
@@ -121,7 +129,14 @@ const Cart = () => {
           />
           <span className="text-sm text-gray-700">Chọn tất cả</span>
           <button
-            onClick={() => setSelectedItems([])}
+            onClick={() => {
+              const newCart = cartItems.filter(
+                (item) => !selectedItems.find((sel) => sel.id === item.id)
+              );
+              setCartItems(newCart);
+              setSelectedItems([]);
+              localStorage.setItem("cart", JSON.stringify(newCart));
+            }}
             className="text-sm text-red-500 hover:underline"
           >
             Xóa
