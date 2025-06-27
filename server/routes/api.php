@@ -3,7 +3,7 @@
     use App\Http\Controllers\Api\HomeController;
     use App\Http\Controllers\Api\CartItemController;
     use App\Http\Controllers\Api\AuthController;
-
+    use Illuminate\Http\Request;
     use App\Http\Controllers\Api\SellerProductController;
 
     use App\Http\Controllers\Api\ProductController;
@@ -52,9 +52,12 @@ Route::middleware('auth:sanctum')->prefix('cart')->group(function () {
 });
 
 // Auth route
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+    return $request->user();
+});
 Route::get('/products/search', [ProductController::class, 'search']);
 
 

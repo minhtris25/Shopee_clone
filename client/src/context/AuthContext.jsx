@@ -1,29 +1,38 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useEffect, useState } from 'react';
-import api from '../api/axios';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+import api from '../api/axios'; // axiosClient đã cấu hình baseURL + withCredentials
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // để biết khi nào đang fetch user
 
-  const fetchUser = async () => {
+const fetchUser = async () => {
+  try {
+    const res = await api.get('/me', { withCredentials: true });
+    console.log('Kết quả fetchUser:', res.data);
+    setUser(res.data);
+  } catch (error) {
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // Gọi API logout
+  const logout = async () => {
     try {
-      const res = await api.get('/api/me');
-      setUser(res.data);
-    } catch {
+      await api.post('/logout');
       setUser(null);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('Logout failed:', err);
     }
   };
 
-  const logout = async () => {
-    await api.post('/api/logout');
-    setUser(null);
-  };
-
+  // Fetch user khi lần đầu load ứng dụng
   useEffect(() => {
     fetchUser();
   }, []);
@@ -34,3 +43,6 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+// Custom hook tiện sử dụng
+export const useAuth = () => useContext(AuthContext);
