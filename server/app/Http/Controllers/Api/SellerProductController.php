@@ -7,9 +7,30 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth; // <-- Thêm dòng này để sử dụng Auth
 
 class SellerProductController extends Controller
 {
+    /**
+     * Lấy danh sách sản phẩm của người bán hiện tại.
+     * Yêu cầu xác thực bằng auth:sanctum.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        // Lấy người dùng hiện tại đã đăng nhập
+        $user = Auth::user();
+
+        // Lấy tất cả sản phẩm thuộc về người dùng này
+        // Giả định mối quan hệ 'products' đã được định nghĩa trong User model
+        // Hoặc bạn có thể truy vấn trực tiếp bảng products với seller_id
+        $products = Product::where('seller_id', $user->id)->get();
+
+        return response()->json($products);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

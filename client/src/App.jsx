@@ -13,6 +13,8 @@ import SearchResults from './pages/SearchResults';
 import SellerDashboard from "./seller/SellerDashboard";
 import ChatFloatingButton from "./components/ChatFloatingButton";
 import ChatWindow from "./components/ChatWindow";
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false); // State được định nghĩa ở đây
@@ -29,11 +31,12 @@ const App = () => {
         <Route path="/" element={<ProductList />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/detail/:id" element={<ProductDetail />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/order" element={<Order/>} />
         <Route path="/products/search" element={<SearchResults />} />
         <Route path="/seller" element={<SellerDashboard />} />
       </Routes>
+       <ToastContainer />
        <ChatFloatingButton onClick={toggleChat} />
       <ChatWindow isOpen={isChatOpen} onClose={toggleChat} />
     </Router>

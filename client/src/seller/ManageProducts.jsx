@@ -14,15 +14,14 @@ function ManageProducts() {
     setMessage('');
     setError('');
     try {
-      const token = localStorage.getItem('authToken');
+      // THAY ĐỔI TỪ 'authToken' THÀNH 'access_token'
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setError('Bạn chưa đăng nhập. Vui lòng đăng nhập để xem sản phẩm.');
         setLoading(false);
         return;
       }
 
-      // Giả sử bạn đã tạo endpoint GET /api/seller/products trong Laravel
-      // để lấy danh sách sản phẩm của người bán đang đăng nhập.
       const response = await axios.get('http://localhost:8000/api/seller/products', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -33,20 +32,17 @@ function ManageProducts() {
     } catch (apiError) {
       console.error('Lỗi khi tải sản phẩm:', apiError.response ? apiError.response.data : apiError.message);
       setError(apiError.response?.data?.message || 'Có lỗi xảy ra khi tải sản phẩm.');
-      setProducts([]); // Xóa sản phẩm nếu có lỗi
+      setProducts([]);
       setLoading(false);
     }
   };
 
-  // Gọi API khi component được mount
   useEffect(() => {
     fetchProducts();
-  }, []); // [] đảm bảo chỉ gọi một lần khi mount
+  }, []);
 
   const handleEdit = (id) => {
     alert(`Chức năng Sửa sản phẩm ID: ${id}. Bạn có thể implement modal hoặc trang chỉnh sửa riêng.`);
-    // TODO: Chuyển hướng đến trang chỉnh sửa: navigate(`/seller-dashboard/edit-product/${id}`);
-    // Hoặc mở modal chỉnh sửa và truyền dữ liệu sản phẩm vào modal đó.
   };
 
   const handleDelete = async (id) => {
@@ -56,19 +52,19 @@ function ManageProducts() {
     setMessage('');
     setError('');
     try {
-      const token = localStorage.getItem('authToken');
+      // THAY ĐỔI TỪ 'authToken' THÀNH 'access_token'
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setError('Bạn chưa đăng nhập. Vui lòng đăng nhập để xóa sản phẩm.');
         return;
       }
 
-      await axios.delete(`http://localhost:8000/api/seller/products/${id}`, { // URL API destroy
+      await axios.delete(`http://localhost:8000/api/seller/products/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       setMessage('Xóa sản phẩm thành công!');
-      // Cập nhật lại danh sách sản phẩm sau khi xóa thành công mà không cần fetch lại toàn bộ
       setProducts(prevProducts => prevProducts.filter(product => product.id !== id));
     } catch (apiError) {
       console.error('Lỗi khi xóa sản phẩm:', apiError.response ? apiError.response.data : apiError.message);
@@ -76,21 +72,20 @@ function ManageProducts() {
     }
   };
 
-  // Hàm xử lý chuyển đổi trạng thái (toggle status)
   const handleToggleStatus = async (productId, currentStatus) => {
     setMessage('');
     setError('');
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     try {
-      const token = localStorage.getItem('authToken');
+      // THAY ĐỔI TỪ 'authToken' THÀNH 'access_token'
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setError('Bạn chưa đăng nhập. Vui lòng đăng nhập để cập nhật trạng thái.');
         return;
       }
 
-      // Gửi yêu cầu PATCH/PUT để cập nhật trạng thái
       const response = await axios.put(
-        `http://localhost:8000/api/seller/products/${productId}`, // Sử dụng phương thức PUT hoặc PATCH
+        `http://localhost:8000/api/seller/products/${productId}`,
         { status: newStatus },
         {
           headers: {
@@ -102,7 +97,6 @@ function ManageProducts() {
 
       setMessage(response.data.message || `Cập nhật trạng thái sản phẩm ID ${productId} thành ${newStatus} thành công!`);
 
-      // Cập nhật trạng thái trong state mà không cần fetch lại toàn bộ danh sách
       setProducts(prevProducts =>
         prevProducts.map(product =>
           product.id === productId ? { ...product, status: newStatus } : product
@@ -174,13 +168,12 @@ function ManageProducts() {
                   <td className="py-2 px-4 border-b border-gray-200">{product.stock}</td>
                   <td className="py-2 px-4 border-b border-gray-200">{product.category_id}</td>
                   <td className="py-2 px-4 border-b border-gray-200">
-                    {/* Toggle Switch cho trạng thái */}
                     <label htmlFor={`toggle-status-${product.id}`} className="flex items-center cursor-pointer">
                       <div className="relative">
                         <input
                           type="checkbox"
                           id={`toggle-status-${product.id}`}
-                          className="sr-only" // Ẩn checkbox gốc
+                          className="sr-only"
                           checked={product.status === 'active'}
                           onChange={() => handleToggleStatus(product.id, product.status)}
                         />
@@ -216,10 +209,6 @@ function ManageProducts() {
           </table>
         </div>
       )}
-      {/* Nút "Tải thêm" chỉ có ý nghĩa khi có phân trang từ API */}
-      {/* <button className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-        Tải thêm
-      </button> */}
     </section>
   );
 }

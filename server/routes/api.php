@@ -33,6 +33,7 @@ Route::prefix('home')->group(function () {
 });
 
   Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/seller/products', [SellerProductController::class, 'index']);
     Route::post('/seller/products', [SellerProductController::class, 'store']);
     Route::put('/seller/products/{id}', [SellerProductController::class, 'update']);
     Route::delete('/seller/products/{id}', [SellerProductController::class, 'destroy']);
@@ -56,7 +57,6 @@ Route::middleware('auth:sanctum')->prefix('cart')->group(function () {
 
 // Auth route
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
     return $request->user();

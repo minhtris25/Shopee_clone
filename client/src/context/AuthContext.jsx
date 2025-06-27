@@ -17,7 +17,8 @@ export function AuthProvider({ children }) {
       return;
     }
     try {
-      // axiosClient đã được cấu hình để tự động đính kèm token
+      // axiosClient đã được cấu hình để tự động đính kèm token vào header Authorization
+      // KHÔNG CẦN { withCredentials: true } NỮA
       const res = await api.get('/me');
       console.log('Kết quả fetchUser:', res.data);
       setUser(res.data);
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
       setUser(null);
       localStorage.removeItem('access_token'); // Xóa token cũ nếu không hợp lệ
       // Có thể chuyển hướng về trang đăng nhập nếu là lỗi 401
+      // if (error.response?.status === 401) { navigate('/login'); }
     } finally {
       setLoading(false);
     }
@@ -41,6 +43,7 @@ export function AuthProvider({ children }) {
     } finally {
       localStorage.removeItem('access_token'); // Xóa token khỏi localStorage
       setUser(null); // Xóa user state
+      window.location.href = '/login'; // Chuyển hướng sau khi đăng xuất
     }
   };
 

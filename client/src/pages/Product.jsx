@@ -260,7 +260,7 @@ const ProductListingPage = () => {
             {products.length > 0 ? (
               products.map((product) => (
                 <div key={product.id} className="bg-white shadow p-2">
-                  <Link to={`/detail/${product.id}`}>
+                  <Link to={`/product/${product.id}`}>
                     <img src={product.thumbnail} alt={product.name} className="w-full h-40 object-cover" />
                   </Link>
                   <h3 className="text-sm font-semibold mt-1 truncate">{product.name}</h3>
