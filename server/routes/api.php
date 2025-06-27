@@ -12,6 +12,7 @@
 
 // Product & Review routes
 Route::prefix('products')->group(function () {
+    Route::get('/search', [ProductController::class, 'search']);
     Route::get('/', [ProductController::class, 'index']);
     Route::post('/', [ProductController::class, 'store']);
     Route::get('{id}', [ProductController::class, 'show']);
@@ -58,7 +59,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
     return $request->user();
 });
-Route::get('/products/search', [ProductController::class, 'search']);
+
 
 
 
