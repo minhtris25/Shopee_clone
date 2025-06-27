@@ -19,3 +19,7 @@ export const fetchRecommendedProducts = async (params = {}) => {
     throw error;
   }
 };
+
+export const fetchProductById = (id) => {
+  return axiosClient.get(`/product/${id}`);
+};

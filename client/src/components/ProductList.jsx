@@ -5,6 +5,7 @@ import { fetchRecommendedProducts } from '../api/product';
 const ProductList = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [meta, setMeta] = useState({}); // lưu current_page, last_page, ...
 
   useEffect(() => {
     fetchRecommendedProducts()

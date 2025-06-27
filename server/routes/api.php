@@ -38,6 +38,9 @@ Route::prefix('home')->group(function () {
     Route::delete('/seller/products/{id}', [SellerProductController::class, 'destroy']);
 });
 
+    Route::get('/product/{id}', function ($id) {
+        return App\Models\Product::findOrFail($id);
+    });
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
