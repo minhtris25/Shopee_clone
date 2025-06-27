@@ -14,7 +14,6 @@ import SellerDashboard from "./seller/SellerDashboard";
 import ChatFloatingButton from "./components/ChatFloatingButton";
 import ChatWindow from "./components/ChatWindow";
 
-
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false); // State được định nghĩa ở đây
 
