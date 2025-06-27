@@ -1,10 +1,26 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaFacebookF, FaInstagram, FaBell, FaQuestionCircle, FaShoppingCart } from 'react-icons/fa';
-import { IoMdGlobe } from 'react-icons/io';
-
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaBell,
+  FaQuestionCircle,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { IoMdGlobe } from "react-icons/io";
 
 const Header = () => {
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchKeyword.trim()) {
+      navigate(`/products/search?q=${encodeURIComponent(searchKeyword.trim())}`);
+    }
+  };
+
   return (
     <header className="bg-[#f53d2d] text-white text-sm">
       {/* Top Bar */}
@@ -31,9 +47,7 @@ const Header = () => {
               <FaBell />
               <span>Thông Báo</span>
             </span>
-            <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              
-            </span>
+            <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"></span>
           </div>
           <span className="flex items-center space-x-1 hover:underline">
             <FaQuestionCircle />
@@ -58,26 +72,23 @@ const Header = () => {
         {/* Logo and Promo */}
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center">
-            <img
-              src="/Shopee_logo.png"
-              alt="Shopee Logo"
-              className="h-10"
-            />
+            <img src="/Shopee_logo.png" alt="Shopee Logo" className="h-10" />
           </Link>
-          
         </div>
 
         {/* Search Bar */}
-        <div className="flex-grow md:mx-20">
-          <div className="relative">
+        <div className="w-full max-w-4xl mx-auto">
+          <form onSubmit={handleSearch} className="relative w-full">
             <input
               type="text"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
               placeholder="Shopee bảo ship 0Đ - Đăng ký ngay!"
-              className="w-full px-4 py-2 rounded-l-sm focus:outline-none text-gray-900 bg-white"
+              className="w-full px-4 py-2 pr-10 rounded-sm focus:outline-none text-gray-900 bg-white"
             />
             <button
               type="submit"
-              className="absolute right-0 top-0 h-full px-3 bg-orange-600 text-white rounded-r-sm "
+              className="absolute right-0 top-0 h-full px-4 bg-orange-600 text-white rounded-r-sm"
             >
               <svg
                 className="w-5 h-5"
@@ -93,7 +104,7 @@ const Header = () => {
                 />
               </svg>
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Cart */}
@@ -105,28 +116,52 @@ const Header = () => {
       {/* Bottom Categories */}
       <nav className="bg-orange-600 px-6 py-1 max-w-4xl mx-auto">
         <div className="flex space-x-4 overflow-x-auto text-xs">
-          <Link to="/category/aophongdep" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/aophongdep"
+            className="hover:underline whitespace-nowrap"
+          >
             Áo Phông Đẹp
           </Link>
-          <Link to="/category/setdohottrend" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/setdohottrend"
+            className="hover:underline whitespace-nowrap"
+          >
             Set Đồ Hot Trend 2025
           </Link>
-          <Link to="/category/sonbongchinhhang" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/sonbongchinhhang"
+            className="hover:underline whitespace-nowrap"
+          >
             Son Bóng Chính Hãng
           </Link>
-          <Link to="/category/ghenoidura" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/ghenoidura"
+            className="hover:underline whitespace-nowrap"
+          >
             Ghế Ngồi Dura
           </Link>
-          <Link to="/category/dodaban1k" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/dodaban1k"
+            className="hover:underline whitespace-nowrap"
+          >
             Đồ Đá Banh 1k
           </Link>
-          <Link to="/category/bonguke" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/bonguke"
+            className="hover:underline whitespace-nowrap"
+          >
             Bộ Ngủ Kẻ
           </Link>
-          <Link to="/category/babyteeomeo" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/babyteeomeo"
+            className="hover:underline whitespace-nowrap"
+          >
             Baby Tee Ôm Eo
           </Link>
-          <Link to="/category/quanzin" className="hover:underline whitespace-nowrap">
+          <Link
+            to="/category/quanzin"
+            className="hover:underline whitespace-nowrap"
+          >
             Quần Zin
           </Link>
         </div>

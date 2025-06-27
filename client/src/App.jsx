@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Order from "./pages/Order";
+import SearchResults from './pages/SearchResults';
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/detail/:id" element={<ProductDetail />} />
         <Route path="/order" element={<Order/>} />
+        <Route path="/products/search" element={<SearchResults />} />
       </Routes>
     </Router>
   );
