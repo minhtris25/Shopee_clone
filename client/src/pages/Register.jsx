@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import axiosClient from '../api/axios';
 import axios from 'axios';
 import '../assets/css/style.css';
-import logo from '../assets/images/shopee.png';
 import bgImage from '../assets/images/bgr-login-register.jpg';
+import { useAuth } from '../context/AuthContext'; 
+
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -12,7 +13,7 @@ export default function Register() {
     password: '',
     password_confirmation: '',
   });
-
+  const { setUser } = useAuth(); // lấy hàm setUser
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -34,9 +35,10 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', { withCredentials: true });
+    await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
     const res = await axiosClient.post('/register', form);
-    alert("Đăng nhập thành công!");
+    setUser(res.data.user); // lưu user vào context
+    alert("Đăng ký thành công!");
     navigate("/");
     console.log('Success:', res.data);
   } catch (error) {

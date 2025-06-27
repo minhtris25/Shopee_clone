@@ -1,11 +1,13 @@
-import axios from 'axios';
+// src/api/axiosClient.js
+import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: "http://localhost:8000",
+  withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // bật để gửi cookie CSRF + session
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  }
 });
 
 export default axiosClient;

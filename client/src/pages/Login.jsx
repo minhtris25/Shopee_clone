@@ -3,9 +3,10 @@ import axios from "../api/axios";
 import axiosClient from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/style.css";
-import logo from "../assets/images/shopee.png";
 import bgImage from "../assets/images/bgr-login-register.jpg";
 import "../index.css";
+import { useAuth } from '../context/AuthContext';
+
 
 
 
@@ -17,18 +18,27 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const { fetchUser } = useAuth();
+
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    // Dùng axios trực tiếp cho CSRF
-    await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie", {
-      withCredentials: true,
+    // Bước 1: Lấy CSRF token
+    await axiosClient.get("/sanctum/csrf-cookie",{
+      withCredentials: true
     });
 
-    // Sau đó login bằng axiosClient (đã có baseURL)
-    await axiosClient.post("/login", form, {
-      withCredentials: true,
+    // Bước 2: Gửi request login
+    await axiosClient.post("/api/login", {
+      email: form.email,
+      password: form.password,
+    },{
+      withCredentials: true
     });
+
+    // Bước 3: Lấy user
+    await fetchUser();
 
     alert("Đăng nhập thành công!");
     navigate("/");
@@ -37,6 +47,7 @@ const handleSubmit = async (e) => {
     alert("Đăng nhập thất bại!");
   }
 };
+
 
   return (
     <div
