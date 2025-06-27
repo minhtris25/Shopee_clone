@@ -1,41 +1,52 @@
+// Trong AuthContext.jsx
 import React, { createContext, useEffect, useState, useContext } from 'react';
-import api from '../api/axios'; // axiosClient đã cấu hình baseURL + withCredentials
-import axios from 'axios';
+import api from '../api/axios'; // Đảm bảo api là axiosClient đã cấu hình
 import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // để biết khi nào đang fetch user
+  const [loading, setLoading] = useState(true);
 
-const fetchUser = async () => {
-  try {
-    const res = await api.get('/me', { withCredentials: true });
-    console.log('Kết quả fetchUser:', res.data);
-    setUser(res.data);
-  } catch (error) {
-    setUser(null);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // Gọi API logout
-  const logout = async () => {
-    try {
-      await api.post('/logout');
+  const fetchUser = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) { // Nếu không có token, không cố gắng fetch user
       setUser(null);
-    } catch (err) {
-      console.error('Logout failed:', err);
+      setLoading(false);
+      return;
+    }
+    try {
+      // axiosClient đã được cấu hình để tự động đính kèm token
+      const res = await api.get('/me');
+      console.log('Kết quả fetchUser:', res.data);
+      setUser(res.data);
+    } catch (error) {
+      console.error('Lỗi fetchUser:', error);
+      setUser(null);
+      localStorage.removeItem('access_token'); // Xóa token cũ nếu không hợp lệ
+      // Có thể chuyển hướng về trang đăng nhập nếu là lỗi 401
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch user khi lần đầu load ứng dụng
+  const logout = async () => {
+    try {
+      // Gửi request logout để thu hồi token ở backend
+      await api.post('/logout');
+    } catch (err) {
+      console.error('Logout failed on server:', err);
+      // Xử lý lỗi nếu cần, nhưng vẫn xóa token ở client
+    } finally {
+      localStorage.removeItem('access_token'); // Xóa token khỏi localStorage
+      setUser(null); // Xóa user state
+    }
+  };
+
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, []); // Chỉ chạy một lần khi component mount
 
   return (
     <AuthContext.Provider value={{ user, setUser, fetchUser, logout, loading }}>
@@ -44,5 +55,4 @@ const fetchUser = async () => {
   );
 }
 
-// Custom hook tiện sử dụng
 export const useAuth = () => useContext(AuthContext);

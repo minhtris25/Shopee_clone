@@ -1,52 +1,46 @@
+// Trong Login.jsx
 import React, { useState } from "react";
-import axios from "../api/axios";
-import axiosClient from "../api/axios";
+import axiosClient from "../api/axios"; // Đảm bảo import axiosClient
 import { useNavigate } from "react-router-dom";
-import "../assets/css/style.css";
-import bgImage from "../assets/images/bgr-login-register.jpg";
-import "../index.css";
 import { useAuth } from '../context/AuthContext';
-
-
-
+import bgImage from "../assets/images/bgr-login-register.jpg";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const { fetchUser, setUser } = useAuth(); // Thêm setUser vào đây
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const { fetchUser } = useAuth();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // KHÔNG CẦN GỌI /sanctum/csrf-cookie nữa
 
+      const res = await axiosClient.post("/login", { // Gửi request login
+        email: form.email,
+        password: form.password,
+      });
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Bước 1: Lấy CSRF token
-    await axiosClient.get("/sanctum/csrf-cookie",{
-      withCredentials: true
-    });
+      // Lưu token vào localStorage
+      localStorage.setItem('access_token', res.data.access_token);
+      // Cập nhật user state ngay lập tức
+      setUser(res.data.user);
 
-    // Bước 2: Gửi request login
-    await axiosClient.post("/api/login", {
-      email: form.email,
-      password: form.password,
-    },{
-      withCredentials: true
-    });
-
-    // Bước 3: Lấy user
-    await fetchUser();
-
-    alert("Đăng nhập thành công!");
-    navigate("/");
-  } catch (err) {
-    console.error(err);
-    alert("Đăng nhập thất bại!");
-  }
-};
+      alert("Đăng nhập thành công!");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      // Xử lý lỗi đăng nhập, hiển thị thông báo cho người dùng
+      if (err.response && err.response.data && err.response.data.message) {
+          alert("Lỗi: " + err.response.data.message);
+      } else {
+          alert("Đăng nhập thất bại. Vui lòng thử lại.");
+      }
+    }
+  };
 
 
   return (

@@ -3,10 +3,7 @@
     use App\Http\Controllers\Api\HomeController;
     use App\Http\Controllers\Api\CartItemController;
     use App\Http\Controllers\Api\AuthController;
-
-
     use Illuminate\Http\Request;
-
     use App\Http\Controllers\Api\SellerProductController;
     use App\Http\Controllers\Api\ProductController;
     use App\Http\Controllers\Api\ReviewController;
@@ -50,8 +47,11 @@ Route::prefix('home')->group(function () {
 
 // Cart routes (auth required)
 Route::middleware('auth:sanctum')->prefix('cart')->group(function () {
-    Route::post('/add', [CartItemController::class, 'add']);
-    Route::delete('/remove', [CartItemController::class, 'remove']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::prefix('cart')->group(function () {
+        Route::post('/add', [CartItemController::class, 'add']);
+        Route::delete('/remove', [CartItemController::class, 'remove']);
+    });
 });
 
 // Auth route
