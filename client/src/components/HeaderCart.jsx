@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaFacebookF,
   FaInstagram,
@@ -8,19 +8,20 @@ import {
   FaShoppingCart,
 } from "react-icons/fa";
 import { IoMdGlobe } from "react-icons/io";
+import { useAuth } from "../context/AuthContext";
 
-const Header = () => {
+const HeaderCart = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
-    <header className="bg-white text-white text-sm">
+    <header className="bg-white text-sm">
       {/* Top Bar */}
-      <div className="bg-[#f53d2d]">
+      <div className="bg-[#f53d2d] text-white">
         <div className="flex justify-between items-center px-6 py-2 max-w-7xl mx-auto">
           <div className="flex items-center space-x-4">
             <Link to="/seller" className="hover:underline">
               Kênh Người Bán
-            </Link>
-            <Link to="/become-seller" className="hover:underline">
-              Trở thành Người bán Shopee
             </Link>
             <Link to="/app" className="hover:underline">
               Tải ứng dụng
@@ -49,21 +50,51 @@ const Header = () => {
               <IoMdGlobe />
               <span>Tiếng Việt</span>
             </span>
-            <Link to="/register" className="hover:underline">
-              Đăng Ký
-            </Link>
-            <span>|</span>
-            <Link to="/login" className="hover:underline">
-              Đăng Nhập
-            </Link>
+
+            {user ? (
+              <div className="relative group">
+                <span className="hover:underline cursor-pointer">
+                  {user.name}
+                </span>
+                <div className="absolute hidden group-hover:block bg-white text-gray-800 shadow-md rounded-sm py-2 w-40 z-10 top-full left-1/2 -translate-x-1/2 mt-2">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Trang Cá Nhân
+                  </Link>
+                  <Link
+                    to="/order"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Đơn hàng
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Link to="/register" className="hover:underline">
+                  Đăng Ký
+                </Link>
+                <span>|</span>
+                <Link to="/login" className="hover:underline">
+                  Đăng Nhập
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Middle Search Bar */}
+      {/* Middle Bar */}
       <div className="bg-white shadow">
         <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
-          {/* Logo and Promo */}
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center">
               <img src="/Shopee.svg.png" alt="Shopee Logo" className="h-10" />
@@ -74,11 +105,22 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex-grow md:mx-20">
-            <div className="relative">
+          {/* Optional: search bar hoặc để trống */}
+          <div className="w-full max-w-4xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                navigate(
+                  `/products/search?q=${encodeURIComponent(
+                    e.target.search.value
+                  )}`
+                );
+              }}
+              className="relative"
+            >
               <input
                 type="text"
+                name="search"
                 placeholder="Shopee bảo ship 0Đ - Đăng ký ngay!"
                 className="w-full px-4 py-2 rounded-l-sm focus:outline-none text-gray-900 bg-white border border-gray-300"
               />
@@ -100,7 +142,7 @@ const Header = () => {
                   />
                 </svg>
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -108,4 +150,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default HeaderCart;

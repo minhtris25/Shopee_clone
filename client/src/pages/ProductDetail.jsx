@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { vouchers } from '../data/mockData';
-import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
-import { FaTruck, FaShieldAlt } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { vouchers } from "../data/mockData";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
+import { FaTruck, FaShieldAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -14,24 +17,38 @@ const ProductDetail = () => {
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/product/${id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setProduct(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Lỗi khi lấy sản phẩm:", err);
         setLoading(false);
       });
   }, [id]);
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const handleAddToCart = () => {
+    // 1. Kiểm tra đăng nhập
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    // 2. Lấy giỏ hàng hiện tại
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+    // 3. Tìm xem sản phẩm đã có trong giỏ chưa
     const existingIndex = cart.findIndex((item) => item.id === product.id);
+
     if (existingIndex !== -1) {
+      // Nếu đã có, tăng số lượng
       cart[existingIndex].quantity += quantity;
     } else {
+      // Nếu chưa có, thêm mới
       cart.push({
         id: product.id,
         name: product.name,
@@ -41,10 +58,12 @@ const ProductDetail = () => {
       });
     }
 
+    // 4. Cập nhật localStorage
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
-  };
 
+    // 5. Thông báo
+    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
+  };
 
   const fakeRating = 4.5;
   const fakeReviewCount = 1200;
@@ -63,7 +82,9 @@ const ProductDetail = () => {
     return (
       <>
         <Header />
-        <div className="text-center py-20 text-red-500">Không tìm thấy sản phẩm</div>
+        <div className="text-center py-20 text-red-500">
+          Không tìm thấy sản phẩm
+        </div>
         <Footer />
       </>
     );
@@ -83,7 +104,9 @@ const ProductDetail = () => {
               />
             </div>
             <div className="md:w-1/2 space-y-4">
-              <h1 className="text-xl font-bold text-gray-800">{product.name}</h1>
+              <h1 className="text-xl font-bold text-gray-800">
+                {product.name}
+              </h1>
               <div className="flex items-center text-sm text-gray-600 space-x-2">
                 <div className="flex items-center text-yellow-400">
                   {Array.from({ length: 5 }, (_, i) =>
@@ -94,12 +117,14 @@ const ProductDetail = () => {
                     )
                   )}
                 </div>
-                <span>{fakeRating} | {fakeReviewCount.toLocaleString()} đánh giá</span>
+                <span>
+                  {fakeRating} | {fakeReviewCount.toLocaleString()} đánh giá
+                </span>
                 <span className="text-gray-400">•</span>
                 <span>Đã bán {product.sold || 0}</span>
               </div>
               <div className="text-2xl text-red-600 font-semibold">
-                ₫{Number(product.price).toLocaleString('vi-VN')}
+                ₫{Number(product.price).toLocaleString("vi-VN")}
               </div>
               <div className="flex items-center space-x-2">
                 <span className="w-32 text-gray-500">Voucher Của Shop</span>
@@ -112,7 +137,9 @@ const ProductDetail = () => {
                       {voucher.label}
                     </span>
                   ))}
-                  <span className="text-red-600 text-xs cursor-pointer">Xem tất cả ▾</span>
+                  <span className="text-red-600 text-xs cursor-pointer">
+                    Xem tất cả ▾
+                  </span>
                 </div>
               </div>
               <div className="flex items-start space-x-2 mt-4 text-sm text-gray-700">
@@ -120,7 +147,8 @@ const ProductDetail = () => {
                 <div>
                   <p className="flex items-center gap-1">
                     <FaTruck className="text-green-500" />
-                    Nhận từ <strong>28 Th06 - 1 Th07</strong>, phí giao <strong>₫0</strong>
+                    Nhận từ <strong>28 Th06 - 1 Th07</strong>, phí giao{" "}
+                    <strong>₫0</strong>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Tặng Voucher ₫15.000 nếu đơn giao sau thời gian trên.
@@ -132,7 +160,8 @@ const ProductDetail = () => {
                 <div className="flex items-start gap-2">
                   <FaShieldAlt className="text-red-500 mt-1" />
                   <p>
-                    Trả hàng miễn phí 15 ngày · Chính hãng 100% · Miễn phí vận chuyển · Bảo vệ người mua
+                    Trả hàng miễn phí 15 ngày · Chính hãng 100% · Miễn phí vận
+                    chuyển · Bảo vệ người mua
                   </p>
                 </div>
               </div>
@@ -172,10 +201,16 @@ const ProductDetail = () => {
 
         {/* Chi tiết sản phẩm */}
         <div className="max-w-6xl mx-auto px-4 py-6 bg-white mt-6 rounded shadow space-y-4">
-          <h2 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Chi tiết sản phẩm
+          </h2>
           <div className="text-sm text-gray-700">
-            <p><strong>Danh mục:</strong> Chưa phân loại</p>
-            <p><strong>Số lượng trong kho:</strong> {product.stock || 0}</p>
+            <p>
+              <strong>Danh mục:</strong> Chưa phân loại
+            </p>
+            <p>
+              <strong>Số lượng trong kho:</strong> {product.stock || 0}
+            </p>
           </div>
 
           <div>
