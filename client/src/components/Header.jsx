@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
@@ -13,8 +13,16 @@ import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  // Tính tổng số sản phẩm trong giỏ hàng
+  useEffect(() => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(totalItems);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -54,27 +62,18 @@ const Header = () => {
           </span>
 
           {user ? (
-            // Thay đổi cấu trúc để tạo dropdown khi hover
-            <div className="relative group"> {/* Thêm div cha với class 'group' */}
+            <div className="relative group">
               <Link to="/profile" className="hover:underline cursor-pointer">
-                {user.name} {/* Hiển thị tên người dùng */}
+                {user.name}
               </Link>
-              {/* Dropdown menu */}
-              <div
-                className="absolute hidden group-hover:block
-                           bg-white text-gray-800 shadow-md rounded-sm
-                           py-2 w-40 z-10 top-full left-1/2 -translate-x-1/2 mt-2" // top-full, left-1/2, -translate-x-1/2 để căn giữa theo chiều ngang
-              >
+              <div className="absolute hidden group-hover:block bg-white text-gray-800 shadow-md rounded-sm py-2 w-40 z-10 top-full left-1/2 -translate-x-1/2 mt-2">
                 <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
                   Trang Cá Nhân
                 </Link>
                 <Link to="/order" className="block px-4 py-2 hover:bg-gray-100">
                   Đơn hàng
                 </Link>
-                <button
-                  onClick={logout}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                >
+                <button onClick={logout} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                   Đăng xuất
                 </button>
               </div>
@@ -121,9 +120,23 @@ const Header = () => {
         </div>
 
         {/* Cart */}
-        <Link to="/cart" className="flex items-center">
+        <button
+          onClick={() => {
+            if (!user) {
+              navigate("/login");
+            } else {
+              navigate("/cart");
+            }
+          }}
+          className="relative flex items-center"
+        >
           <FaShoppingCart size={24} />
-        </Link>
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow">
+              {cartCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Bottom Categories */}
