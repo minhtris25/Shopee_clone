@@ -47,7 +47,8 @@ class HomeController extends Controller
 
     public function recommendByCategory(Request $request)
     {
-        $query = Product::with(['category', 'seller']);
+        // Thêm bộ lọc trạng thái 'active' vào đây
+        $query = Product::with(['category', 'seller'])->where('status', 'active');
 
         // Xử lý sắp xếp
         $sortBy = $request->input('sort_by', 'lienQuan');

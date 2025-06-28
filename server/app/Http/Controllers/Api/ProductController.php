@@ -10,7 +10,8 @@ class ProductController extends Controller
 {
     public function recommendByCategory(Request $request)
     {
-        $query = Product::with(['category', 'seller']);
+        $query = Product::with(['category', 'seller'])
+                         ->where('status', 'active');
 
         // Xử lý sắp xếp
         $sortBy = $request->input('sort_by', 'lienQuan');
@@ -41,7 +42,9 @@ class ProductController extends Controller
     }
     public function index()
     {
-        $products = Product::with(['category', 'seller'])->get();
+        $products = Product::with(['category', 'seller'])
+        ->where('status', 'active') 
+        ->get();
         return response()->json($products);
     }
 
@@ -57,6 +60,7 @@ class ProductController extends Controller
         }
 
         $products = Product::with('category')
+             ->where('status', 'active')
             ->where('name', 'LIKE', "%$keyword%")
             ->orWhereHas('category', function ($query) use ($keyword) {
                 $query->where('name', 'LIKE', "%$keyword%");

@@ -7,7 +7,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth; // <-- Thêm dòng này để sử dụng Auth
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SellerProductController extends Controller
 {
@@ -40,25 +41,43 @@ class SellerProductController extends Controller
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
-            'thumbnail'   => 'nullable|url',
+            'thumbnail'   => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status'      => 'in:active,inactive',
         ]);
 
+        $thumbnailPath = null;
+        // Xử lý và lưu trữ file ảnh nếu có
+        if ($request->hasFile('thumbnail')) {
+            $image = $request->file('thumbnail');
+            // Tạo tên file duy nhất
+            $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+
+            // Lưu ảnh vào thư mục 'public/products' trong storage
+            // Phương thức storeAs() sẽ trả về đường dẫn tương đối (ví dụ: 'public/products/ten_file.jpg')
+            // Chúng ta chỉ cần lưu phần 'products/ten_file.jpg' vào database
+            $path = $image->storeAs('public/products', $filename);
+            
+            // Cắt bỏ phần 'public/' để lưu đường dẫn tương đối 'products/ten_file.jpg'
+            $thumbnailPath = Str::replaceFirst('public/', '', $path);
+        }
+
         $product = Product::create([
-            'seller_id'   => auth()->id(), // ai đăng nhập sẽ là người sở hữu sản phẩm
+            'seller_id'   => auth()->id(),
             'category_id' => $request->category_id,
             'name'        => $request->name,
-            'slug'        => $request->slug ?? Str::slug($request->name) . '-' . uniqid(),
+            // Nếu slug không được cung cấp, tạo từ tên sản phẩm và thêm uniqid để đảm bảo duy nhất
+            'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->name) . '-' . uniqid(),
             'description' => $request->description,
             'price'       => $request->price,
             'stock'       => $request->stock,
-            'thumbnail'   => $request->thumbnail,
+            'thumbnail'   => $thumbnailPath, // Lưu đường dẫn đã xử lý (products/ten_file.jpg)
             'status'      => $request->status ?? 'active',
         ]);
 
         return response()->json([
             'message' => 'Tạo sản phẩm thành công',
-            'product' => $product
+            'product' => $product,
+            // Không còn trả về asset($thumbnailPath) nữa, frontend sẽ tự xử lý
         ], 201);
     }
 
@@ -76,14 +95,65 @@ class SellerProductController extends Controller
             'description' => 'nullable|string',
             'price'       => 'sometimes|numeric|min:0',
             'stock'       => 'sometimes|integer|min:0',
-            'thumbnail'   => 'nullable|url',
+            'thumbnail'   => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status'      => 'in:active,inactive',
         ]);
 
-        $product->update($request->only([
+        $dataToUpdate = $request->only([
             'category_id', 'name', 'slug', 'description',
-            'price', 'stock', 'thumbnail', 'status',
-        ]));
+            'price', 'stock', 'status',
+        ]);
+
+        $oldThumbnail = $product->thumbnail; // Lưu lại đường dẫn ảnh cũ để xóa nếu có ảnh mới
+
+        // Xử lý và lưu trữ file ảnh nếu có trong request update
+        if ($request->hasFile('thumbnail')) {
+            $image = $request->file('thumbnail');
+            $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/products', $filename);
+            
+            // Cắt bỏ phần 'public/' để lưu đường dẫn tương đối 'products/ten_file.jpg'
+            $dataToUpdate['thumbnail'] = Str::replaceFirst('public/', '', $path);
+
+            // Xóa ảnh cũ nếu nó tồn tại và không phải là ảnh mặc định (nếu có)
+            if ($oldThumbnail) {
+                // Chuyển đổi đường dẫn tương đối thành đường dẫn trong storage/app
+                $oldStoragePath = 'public/' . $oldThumbnail; // Đảm bảo đúng định dạng
+                if (Storage::exists($oldStoragePath)) {
+                    Storage::delete($oldStoragePath);
+                }
+            }
+        } elseif ($request->has('thumbnail') && $request->thumbnail === null) {
+            // Trường hợp người dùng gửi thumbnail=null để xóa ảnh hiện tại
+            if ($oldThumbnail) {
+                $oldStoragePath = 'public/' . $oldThumbnail; // Đảm bảo đúng định dạng
+                if (Storage::exists($oldStoragePath)) {
+                    Storage::delete($oldStoragePath);
+                }
+            }
+            $dataToUpdate['thumbnail'] = null;
+        }
+
+
+        // Nếu slug được cung cấp và trống, hoặc không được cung cấp khi cập nhật name
+        if ($request->has('name') || ($request->has('slug') && $request->slug === null)) {
+            if (!$request->has('slug') || $request->slug === null) {
+                // Tạo slug mới nếu name thay đổi và slug không được cung cấp hoặc được set null
+                $newSlug = Str::slug($request->name ?? $product->name);
+                $originalSlug = $newSlug;
+                $i = 1;
+                while (Product::where('slug', $newSlug)->where('id', '!=', $product->id)->exists()) {
+                    $newSlug = $originalSlug . '-' . $i++;
+                }
+                $dataToUpdate['slug'] = $newSlug;
+            } else {
+                // Nếu slug được cung cấp rõ ràng, dùng nó
+                $dataToUpdate['slug'] = Str::slug($request->slug);
+            }
+        }
+
+
+        $product->update($dataToUpdate);
 
         return response()->json([
             'message' => 'Cập nhật sản phẩm thành công',
@@ -97,6 +167,15 @@ class SellerProductController extends Controller
         $product = Product::where('id', $id)
                           ->where('seller_id', auth()->id())
                           ->firstOrFail();
+
+        // Xóa file ảnh liên quan trước khi xóa sản phẩm
+        if ($product->thumbnail) {
+            // Chuyển đổi đường dẫn tương đối thành đường dẫn trong storage/app
+            $storagePath = 'public/' . $product->thumbnail; // Đảm bảo đúng định dạng
+            if (Storage::exists($storagePath)) {
+                Storage::delete($storagePath);
+            }
+        }
 
         $product->delete();
 

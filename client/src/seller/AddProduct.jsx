@@ -1,20 +1,37 @@
-// src/seller/AddProduct.jsx
-import React, { useState } from 'react';
-import axios from 'axios'; // Import axios for API calls
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function AddProduct() {
   const [productData, setProductData] = useState({
-    category_id: '', // Thêm trường category_id
+    category_id: '',
     name: '',
     description: '',
     price: '',
-    stock: '',       // Thay đổi từ 'quantity' thành 'stock'
-    thumbnail: '',   // Thêm trường thumbnail (URL ảnh)
-    status: 'active', // Thêm trường status với giá trị mặc định
+    stock: '',
+    // thumbnail: '', // Không cần lưu URL ảnh trực tiếp trong state nữa
+    status: 'active',
   });
 
-  const [message, setMessage] = useState(''); // State để hiển thị thông báo
-  const [error, setError] = useState(''); // State để hiển thị lỗi
+  const [selectedFile, setSelectedFile] = useState(null); // State mới để lưu trữ file được chọn
+  const [filePreview, setFilePreview] = useState(''); // State để hiển thị ảnh preview
+
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/home/categories');
+        setCategories(response.data.data);
+      } catch (err) {
+        console.error('Lỗi khi tải danh mục:', err.response ? err.response.data : err.message);
+        setError('Không thể tải danh mục. Vui lòng thử lại sau.');
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,75 +39,98 @@ function AddProduct() {
       ...prevData,
       [name]: value,
     }));
-    // Xóa thông báo lỗi khi người dùng bắt đầu nhập lại
     setError('');
     setMessage('');
   };
 
+  // Xử lý khi người dùng chọn file
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]; // Lấy file đầu tiên được chọn
+    setSelectedFile(file); // Lưu file vào state
+    setError('');
+    setMessage('');
+
+    if (file) {
+      // Tạo URL tạm thời để hiển thị preview
+      setFilePreview(URL.createObjectURL(file));
+    } else {
+      setFilePreview('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(''); // Xóa thông báo cũ
-    setError('');   // Xóa lỗi cũ
+    setMessage('');
+    setError('');
 
-    // Client-side validation: Kiểm tra các trường bắt buộc theo API
     if (!productData.category_id || !productData.name || !productData.price || !productData.stock) {
-      setError('Vui lòng điền đầy đủ các trường bắt buộc (ID Danh mục, Tên, Giá, Tồn kho).');
+      setError('Vui lòng điền đầy đủ các trường bắt buộc (Tên, Giá, Tồn kho, Danh mục).');
       return;
     }
 
-    // Đảm bảo price và stock là số dương
-    if (productData.price < 0) {
+    if (parseFloat(productData.price) < 0) {
       setError('Giá sản phẩm không được âm.');
       return;
     }
-    if (productData.stock < 0) {
+    if (parseInt(productData.stock, 10) < 0) {
       setError('Số lượng tồn kho không được âm.');
       return;
     }
 
+    if (!selectedFile) {
+        setError('Vui lòng chọn ảnh đại diện sản phẩm.');
+        return;
+    }
+
     try {
-      // Lấy token từ localStorage (giả định bạn đã lưu token sau khi đăng nhập)
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setError('Bạn chưa đăng nhập. Vui lòng đăng nhập để thêm sản phẩm.');
         return;
       }
 
+      // Tạo FormData để gửi file và các dữ liệu khác
+      const formData = new FormData();
+      formData.append('category_id', parseInt(productData.category_id, 10));
+      formData.append('name', productData.name);
+      formData.append('description', productData.description);
+      formData.append('price', parseFloat(productData.price));
+      formData.append('stock', parseInt(productData.stock, 10));
+      formData.append('status', productData.status);
+      formData.append('thumbnail', selectedFile); // Gắn file ảnh vào FormData
+
       const response = await axios.post(
-        'http://localhost:8000/api/seller/products', // URL API của bạn
-        {
-          ...productData,
-          price: parseFloat(productData.price), // Đảm bảo price là số float
-          stock: parseInt(productData.stock, 10), // Đảm bảo stock là số nguyên
-          category_id: parseInt(productData.category_id, 10) // Đảm bảo category_id là số nguyên
-        },
+        'http://localhost:8000/api/seller/products',
+        formData, // Gửi FormData thay vì JSON
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Gửi token xác thực
-          }
+            'Content-Type': 'multipart/form-data', // Rất quan trọng khi gửi file
+            'Authorization': `Bearer ${token}`,
+          },
         }
       );
 
       setMessage(response.data.message || 'Thêm sản phẩm thành công!');
       console.log('Sản phẩm đã được thêm:', response.data.product);
 
-      // Reset form sau khi gửi thành công
+      // Reset form và file sau khi gửi thành công
       setProductData({
         category_id: '',
         name: '',
         description: '',
         price: '',
         stock: '',
-        thumbnail: '',
         status: 'active',
       });
+      setSelectedFile(null);
+      setFilePreview('');
+      // Xóa giá trị input type="file" (cần truy cập DOM hoặc reset form hoàn toàn)
+      document.getElementById('productThumbnail').value = '';
 
     } catch (apiError) {
       console.error('Lỗi khi thêm sản phẩm:', apiError.response ? apiError.response.data : apiError.message);
       setError(apiError.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm.');
-      // Nếu có lỗi validation từ backend, bạn có thể xử lý chi tiết hơn ở đây
-      if (apiError.response && apiError.response.data && apiError.response.data.errors) {
+      if (apiError.response && apiError.response.data && apiErrorError.response.data.errors) {
         const validationErrors = apiError.response.data.errors;
         let errorMessage = 'Lỗi nhập liệu: ';
         for (const key in validationErrors) {
@@ -118,20 +158,6 @@ function AddProduct() {
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="categoryId" className="block text-gray-700 text-sm font-bold mb-2">ID Danh mục:</label>
-          <input
-            type="number" // category_id thường là số
-            id="categoryId"
-            name="category_id"
-            value={productData.category_id}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Nhập ID danh mục (ví dụ: 1)"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
           <label htmlFor="productName" className="block text-gray-700 text-sm font-bold mb-2">Tên sản phẩm:</label>
           <input
             type="text"
@@ -143,6 +169,19 @@ function AddProduct() {
             placeholder="Nhập tên sản phẩm"
             required
           />
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="productDescription" className="block text-gray-700 text-sm font-bold mb-2">Mô tả (Tùy chọn):</label>
+          <textarea
+            id="productDescription"
+            name="description"
+            rows="4"
+            value={productData.description}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            placeholder="Mô tả chi tiết sản phẩm"
+          ></textarea>
         </div>
 
         <div className="mb-4">
@@ -164,7 +203,7 @@ function AddProduct() {
           <input
             type="number"
             id="productStock"
-            name="stock" // Đổi tên từ 'quantity' sang 'stock'
+            name="stock"
             value={productData.stock}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -174,27 +213,47 @@ function AddProduct() {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="productThumbnail" className="block text-gray-700 text-sm font-bold mb-2">URL ảnh đại diện (Thumbnail):</label>
-          <input
-            type="text" // Input type text vì API mong đợi URL
-            id="productThumbnail"
-            name="thumbnail"
-            value={productData.thumbnail}
+          <label htmlFor="categoryId" className="block text-gray-700 text-sm font-bold mb-2">Danh mục:</label>
+          <select
+            id="categoryId"
+            name="category_id"
+            value={productData.category_id}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Nhập URL ảnh (ví dụ: https://example.com/image.jpg)"
+            required
+          >
+            <option value="">-- Chọn danh mục --</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Thay đổi ở đây: Input type="file" */}
+        <div className="mb-4">
+          <label htmlFor="productThumbnail" className="block text-gray-700 text-sm font-bold mb-2">Ảnh đại diện (Thumbnail):</label>
+          <input
+            type="file" // Đổi type thành 'file'
+            id="productThumbnail"
+            name="thumbnail"
+            accept="image/*" // Chỉ cho phép chọn file ảnh
+            onChange={handleFileChange} // Xử lý file riêng
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required // Đảm bảo người dùng chọn ảnh
           />
         </div>
-        {productData.thumbnail && ( // Hiển thị preview nếu có URL ảnh
-            <div className="mt-4 mb-4">
-              <p className="block text-gray-700 text-sm font-bold mb-2">Xem trước ảnh:</p>
-              <img
-                src={productData.thumbnail}
-                alt="Product Preview"
-                className="w-32 h-32 object-cover rounded-md border border-gray-200"
-              />
-            </div>
-          )}
+        {filePreview && ( // Hiển thị preview nếu có file được chọn
+          <div className="mt-4 mb-4">
+            <p className="block text-gray-700 text-sm font-bold mb-2">Xem trước ảnh:</p>
+            <img
+              src={filePreview}
+              alt="Product Preview"
+              className="w-32 h-32 object-cover rounded-md border border-gray-200"
+            />
+          </div>
+        )}
 
         <div className="mb-4">
           <label htmlFor="productStatus" className="block text-gray-700 text-sm font-bold mb-2">Trạng thái:</label>
@@ -208,19 +267,6 @@ function AddProduct() {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-        </div>
-
-        <div className="mb-6">
-          <label htmlFor="productDescription" className="block text-gray-700 text-sm font-bold mb-2">Mô tả (Tùy chọn):</label>
-          <textarea
-            id="productDescription"
-            name="description"
-            rows="4"
-            value={productData.description}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Mô tả chi tiết sản phẩm"
-          ></textarea>
         </div>
 
         <div className="flex items-center justify-between">

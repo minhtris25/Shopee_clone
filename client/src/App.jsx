@@ -1,7 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProductList from "./components/ProductList";
 import Login from "./pages/Login";
 import Register from "./pages/Register"; // Uncomment if you have a Register page
 import Product from "./pages/Product";
@@ -28,7 +27,6 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/product" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/" element={<ProductList />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetail />} />
