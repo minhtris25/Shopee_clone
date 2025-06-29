@@ -33,7 +33,6 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         
-        {/* THAY ĐỔI ĐƯỜNG DẪN NÀY TỪ "/order" SANG "/orders" */}
         <Route path="/order" element={<Order/>} /> 
         
         <Route path="/products/search" element={<SearchResults />} />

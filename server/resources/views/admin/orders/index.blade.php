@@ -30,6 +30,8 @@
                             <span class="badge bg-primary">Đang xử lý</span>
                         @elseif($order->status == 'shipped')
                             <span class="badge bg-success">Đã giao</span>
+                        @elseif($order->status == 'delivered')
+                            <span class="badge bg-success">Đã Hoàn thành đơn hàng</span>
                         @elseif($order->status == 'cancelled')
                             <span class="badge bg-danger">Đã huỷ</span>
                         @endif

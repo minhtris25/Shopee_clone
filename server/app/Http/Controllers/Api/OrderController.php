@@ -86,10 +86,6 @@ class OrderController extends Controller
                 $sellerIds[$product->seller_id] = true; // Lưu ID người bán
             }
 
-            // Tạo mã đơn hàng duy nhất
-            $orderCode = 'ORD-' . strtoupper(Str::random(8));
-
-            // Trong ví dụ này, chúng ta tạo một đơn hàng duy nhất.
             // Trong ứng dụng thực tế của Shopee, có thể tạo nhiều đơn hàng cho nhiều người bán khác nhau
             // hoặc nhóm các sản phẩm từ cùng một người bán vào một đơn hàng.
             // Đây là ví dụ đơn giản nhất, lấy người bán đầu tiên trong danh sách sản phẩm.
@@ -102,7 +98,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'buyer_id' => $buyerId,
                 'seller_id' => $sellerId,
-                'order_code' => $orderCode,
+                'order_code' => 'ORD-' . Str::random(10) . time(), // Tạo mã đơn hàng duy nhất
                 'status' => 'pending',
                 'shipping_address' => $request->shipping_address,
                 'shipping_fee' => $shippingFee,
@@ -113,61 +109,58 @@ class OrderController extends Controller
 
             // Thêm các item vào bảng order_items
             foreach ($request->cart_items as $item) {
-                $product = Product::find($item['product_id']);
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
-                    'price' => $product->price, // Lưu giá sản phẩm tại thời điểm đặt hàng
+                    'price' => Product::find($item['product_id'])->price, // Lưu giá tại thời điểm đặt hàng
                 ]);
             }
-
-            // Xóa các sản phẩm khỏi giỏ hàng sau khi đặt hàng (nếu bạn có bảng giỏ hàng riêng)
-            // \App\Models\CartItem::where('user_id', $buyerId)->delete();
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Đơn hàng đã được tạo thành công.',
-                'order' => $order
-            ], 201); // 201 Created
+                'message' => 'Đơn hàng đã được tạo thành công!',
+                'order' => $order->load('items.product') // Tải các mối quan hệ (nếu cần)
+            ], 201);
+
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Dữ liệu đầu vào không hợp lệ.',
                 'errors' => $e->errors()
-            ], 422); // 422 Unprocessable Entity
+            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Đã xảy ra lỗi khi tạo đơn hàng.',
                 'error' => $e->getMessage()
-            ], 500); // 500 Internal Server Error
+            ], 500);
         }
     }
 
     /**
-     * Hiển thị chi tiết một đơn hàng cụ thể.
+     * Lấy chi tiết một đơn hàng cụ thể của người mua hiện tại.
      *
      * @param  int  $id ID của đơn hàng
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
-        $order = Order::find($id);
+        $order = Order::with('items.product')->find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
 
-        // Đảm bảo người dùng hiện tại là người mua của đơn hàng này
-        if ($order->buyer_id !== Auth::id()) { // Đã bỏ comment và áp dụng check cho người mua
-            return response()->json(['message' => 'Bạn không có quyền truy cập đơn hàng này.'], 403); // 403 Forbidden
+        // Kiểm tra quyền: Đảm bảo người dùng hiện tại là người mua của đơn hàng này
+        if ($order->buyer_id !== Auth::id()) {
+            return response()->json(['message' => 'Bạn không có quyền xem đơn hàng này.'], 403);
         }
 
-        // Có thể load thêm các sản phẩm trong đơn hàng
-        $order->load('items.product'); // Giả sử có quan hệ orderItems và product trong model Order
-
+        // Tải thêm các mối quan hệ nếu cần, ví dụ: user, seller, v.v.
+        // $order->load('user', 'seller'); // nếu có quan hệ user và seller trong model Order
+        // $order->load('orderItems.product'); // đảm bảo có quan hệ orderItems và product trong model Order
         return response()->json([
             'message' => 'Lấy thông tin đơn hàng thành công.',
             'order' => $order
@@ -181,12 +174,14 @@ class OrderController extends Controller
      * @param  int  $id ID của đơn hàng
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateStatus(Request $request, $id)
+    public function update(Request $request, $id)
     {
         try {
             $request->validate([
-                'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
-                // 'payment_status' => 'in:unpaid,paid' // Có thể cập nhật trạng thái thanh toán riêng
+                'shipping_address' => 'sometimes|string',
+                'payment_method' => 'sometimes|in:cod,shopeepay,bank_transfer',
+                'status' => 'sometimes|in:pending,processing,shipped,delivered,cancelled', // Admin/Seller có thể cập nhật
+                'payment_status' => 'sometimes|in:paid,unpaid',
             ]);
 
             $order = Order::find($id);
@@ -195,26 +190,19 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
             }
 
-            // Kiểm tra quyền: CHỈ người bán của đơn hàng hoặc quản trị viên mới được cập nhật.
-            // Nếu bạn muốn người mua CÓ THỂ cập nhật trạng thái (ví dụ như xác nhận đã nhận hàng)
-            // thì bạn cần điều chỉnh logic này. Hiện tại, đoạn code này đang giữ nguyên quyền cho Seller/Admin.
-            // Bạn có thể mở comment dòng này và thêm Auth::user()->is_admin nếu cần cho admin.
-            // if ($order->seller_id !== Auth::id() /* && !Auth::user()->is_admin */) {
-            //     return response()->json(['message' => 'Bạn không có quyền cập nhật trạng thái đơn hàng này.'], 403);
+            // Chỉ người bán hoặc quản trị viên mới được cập nhật thông tin này (ngoại trừ địa chỉ giao hàng)
+            // if ($order->seller_id !== Auth::id() && !Auth::user()->is_admin) {
+            //     return response()->json(['message' => 'Bạn không có quyền cập nhật đơn hàng này.'], 403);
             // }
 
-            // Logic kiểm tra chuyển đổi trạng thái hợp lệ (ví dụ: không thể chuyển từ 'delivered' sang 'pending')
-            // if ($order->status === 'delivered' && $request->status !== 'delivered') {
-            //     return response()->json(['message' => 'Không thể thay đổi trạng thái đơn hàng đã giao.'], 400);
-            // }
-
-            $order->status = $request->status;
+            $order->fill($request->all());
             $order->save();
 
             return response()->json([
-                'message' => 'Cập nhật trạng thái đơn hàng thành công.',
+                'message' => 'Đơn hàng đã được cập nhật thành công.',
                 'order' => $order
             ], 200);
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dữ liệu đầu vào không hợp lệ.',
@@ -260,5 +248,39 @@ class OrderController extends Controller
             'message' => 'Đơn hàng đã được hủy thành công.',
             'order' => $order
         ], 200);
+    }
+
+    /**
+     * Xác nhận người mua đã nhận được hàng.
+     * Chỉ người mua mới có thể thực hiện và khi đơn hàng ở trạng thái 'shipped'.
+     *
+     * @param int $id ID của đơn hàng
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function confirmDelivery($id)
+    {
+        $order = Order::find($id); //
+
+        if (!$order) { //
+            return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404); //
+        }
+
+        // Kiểm tra quyền: Đảm bảo người dùng hiện tại là người mua của đơn hàng này
+        if ($order->buyer_id !== Auth::id()) { //
+            return response()->json(['message' => 'Bạn không có quyền xác nhận đơn hàng này.'], 403); //
+        }
+
+        // Kiểm tra trạng thái đơn hàng: Chỉ có thể xác nhận khi trạng thái là 'shipped' (đã giao cho đơn vị vận chuyển)
+        if ($order->status !== 'shipped') { //
+            return response()->json(['message' => 'Không thể xác nhận nhận hàng cho đơn hàng ở trạng thái hiện tại.'], 400); //
+        }
+
+        $order->status = 'delivered'; //
+        $order->save(); //
+
+        return response()->json([ //
+            'message' => 'Đơn hàng đã được xác nhận đã nhận thành công.', //
+            'order' => $order //
+        ], 200); //
     }
 }

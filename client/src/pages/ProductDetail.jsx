@@ -31,39 +31,37 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleAddToCart = () => {
-    // 1. Kiểm tra đăng nhập
-    if (!user) {
-      navigate("/login");
-      return;
-    }
+const handleAddToCart = () => {
+  if (!user) {
+    navigate("/login");
+    return;
+  }
 
-    // 2. Lấy giỏ hàng hiện tại
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const existingIndex = cart.findIndex((item) => item.id === product.id);
 
-    // 3. Tìm xem sản phẩm đã có trong giỏ chưa
-    const existingIndex = cart.findIndex((item) => item.id === product.id);
+  if (existingIndex !== -1) {
+    cart[existingIndex].quantity += quantity;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      quantity: quantity,
+      thumbnail: product.thumbnail,
+    });
+  }
 
-    if (existingIndex !== -1) {
-      // Nếu đã có, tăng số lượng
-      cart[existingIndex].quantity += quantity;
-    } else {
-      // Nếu chưa có, thêm mới
-      cart.push({
-        id: product.id,
-        name: product.name,
-        price: Number(product.price),
-        quantity: quantity,
-        thumbnail: product.thumbnail,
-      });
-    }
+  // ✅ Cập nhật localStorage
+  localStorage.setItem("cart", JSON.stringify(cart));
 
-    // 4. Cập nhật localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
+  // ✅ Phát sự kiện để Header nhận và cập nhật
+  window.dispatchEvent(new Event("cart_updated")); // 👈 Dòng bạn cần thêm
 
-    // 5. Thông báo
-    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
-  };
+  // ✅ Thông báo
+  toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
+};
+
 
   const fakeRating = 4.5;
   const fakeReviewCount = 1200;

@@ -23,6 +23,8 @@
             <span class="badge bg-primary">Đang xử lý</span>
         @elseif($order->status == 'shipped')
             <span class="badge bg-success">Đã giao</span>
+        @elseif($order->status == 'delivered')
+            <span class="badge bg-success">Đã Hoàn Thành Đơn Hàng</span>
         @elseif($order->status == 'cancelled')
             <span class="badge bg-danger">Đã huỷ</span>
         @endif
@@ -40,6 +42,7 @@
                 <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Chờ xử lý</option>
                 <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
                 <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Đã giao</option>
+                <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Đã hoàn thành</option>
                 <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Đã huỷ</option>
             </select>
             <button type="submit" class="btn btn-primary">Cập nhật</button>

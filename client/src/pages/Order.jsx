@@ -7,6 +7,8 @@ import { Search, Store, Truck, MessageSquare } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
+import { toast } from 'react-toastify';
+
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -61,6 +63,34 @@ const Order = () => {
     debounce((query) => performFetchOrders(query), 500),
     []
   );
+  const handleConfirmReceived = async (orderId) => {
+  const token = getAuthToken();
+  if (!token) {
+    toast.error("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  const confirm = window.confirm("Xác nhận bạn đã nhận được hàng?");
+  if (!confirm) return;
+
+  try {
+    const res = await axios.post(`http://localhost:8000/api/orders/${orderId}/confirm-delivery`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+    toast.success("Đã xác nhận nhận hàng.");
+    // Cập nhật trạng thái trong danh sách đơn hàng
+    setOrders(prev =>
+      prev.map(order => order.id === orderId ? { ...order, status: 'delivered' } : order)
+    );
+  } catch (err) {
+    toast.error("Lỗi khi xác nhận nhận hàng.");
+    console.error(err);
+  }
+};
+
 
   useEffect(() => {
     debouncedFetch(searchQuery);
@@ -191,6 +221,17 @@ const Order = () => {
 
                 {/* Action buttons */}
                 <div className="flex justify-end px-4 py-3 gap-2 bg-white">
+                  {order.status === "shipped" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // ✅ Ngăn sự kiện lan lên thẻ cha
+                      handleConfirmReceived(order.id);
+                    }}
+                    className="bg-green-500 text-white text-sm px-4 py-1 rounded hover:bg-green-600"
+                  >
+                    Đã Nhận Được Hàng
+                  </button>
+                  )}
                   {order.status === "cancelled" || order.status === "delivered" ? (
                     <>
                       {order.status === "cancelled" && (
@@ -198,9 +239,16 @@ const Order = () => {
                             Xem Thông Tin Hoàn Tiền
                           </button>
                       )}
-                      <button className="bg-orange-500 text-white text-sm px-4 py-1 rounded hover:bg-orange-600">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toast.info("Tính năng mua lại đang được phát triển.");
+                        }}
+                        className="bg-orange-500 text-white text-sm px-4 py-1 rounded hover:bg-orange-600"
+                      >
                         Mua Lại
                       </button>
+
                       {order.status === "delivered" && (
                          <button className="bg-green-500 text-white text-sm px-4 py-1 rounded hover:bg-green-600">
                          Đánh giá

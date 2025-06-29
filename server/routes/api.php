@@ -82,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [OrderController::class, 'store']);      // Tạo đơn hàng mới
         Route::get('{id}', [OrderController::class, 'show']);     // Xem chi tiết đơn hàng của người mua
         Route::post('{id}/cancel', [OrderController::class, 'cancel']); // Hủy đơn hàng (người mua)
+        Route::post('{id}/confirm-delivery', [OrderController::class, 'confirmDelivery']); // Xác nhận đã nhận hàng (người mua)
+        Route::post('{id}/complete-order', [OrderController::class, 'completeOrder']); // Người mua hoàn tất đơn hàng
         // Route updateStatus thường dành cho người bán/admin, nếu người mua không được phép thay đổi trạng thái, không đặt ở đây.
         // Route::put('{id}/status', [OrderController::class, 'updateStatus']);
     });

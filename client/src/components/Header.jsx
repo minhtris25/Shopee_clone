@@ -18,11 +18,21 @@ const Header = () => {
   const { user, logout } = useAuth();
 
   // Tính tổng số sản phẩm trong giỏ hàng
-  useEffect(() => {
+useEffect(() => {
+  const updateCartCount = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     setCartCount(totalItems);
-  }, []);
+  };
+
+  updateCartCount();
+  window.addEventListener("cart_updated", updateCartCount);
+
+  return () => {
+    window.removeEventListener("cart_updated", updateCartCount);
+  };
+}, []);
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -66,7 +76,7 @@ const Header = () => {
               <Link to="/profile" className="hover:underline cursor-pointer">
                 {user.name}
               </Link>
-              <div className="absolute hidden group-hover:block bg-white text-gray-800 shadow-md rounded-sm py-2 w-40 z-10 top-full left-1/2 -translate-x-1/2 mt-2">
+              <div className="absolute hidden group-hover:block bg-white text-gray-800 shadow-md rounded-sm py-1 w-40 z-10 top-full left-1/2 -translate-x-1/2 mt-0.2">
                 <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
                   Trang Cá Nhân
                 </Link>
