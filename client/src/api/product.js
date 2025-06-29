@@ -7,7 +7,7 @@ export const fetchRecommendedProducts = async (params = {}) => {
       params: {
         page: params.page || 1,
         sort_by: params.sort_by || 'lienQuan',
-        per_page: params.per_page || 16,
+        per_page: params.per_page || 12,
       },
       headers: {
         'Cache-Control': 'no-cache', // Vô hiệu hóa cache
