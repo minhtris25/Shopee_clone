@@ -7,21 +7,23 @@ import Product from "./pages/Product";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
-import Order from "./pages/Order";
+import Order from "./pages/Order"; // Import Order component
 import SearchResults from './pages/SearchResults';
 import SellerDashboard from "./seller/SellerDashboard";
 import ChatFloatingButton from "./components/ChatFloatingButton";
 import ChatWindow from "./components/ChatWindow";
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
+import OrderDetail from "./pages/OrderDetail"; // Import OrderDetail component
 
 const App = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false); // State được định nghĩa ở đây
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const toggleChat = () => { // Hàm toggleChat được định nghĩa ở đây, bên trong component App
+  const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
-    };
-    return (
+  };
+
+  return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -30,12 +32,16 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/order" element={<Order/>} />
+        
+        {/* THAY ĐỔI ĐƯỜNG DẪN NÀY TỪ "/order" SANG "/orders" */}
+        <Route path="/order" element={<Order/>} /> 
+        
         <Route path="/products/search" element={<SearchResults />} />
         <Route path="/seller" element={<SellerDashboard />} />
+        <Route path="/order/:id" element={<OrderDetail />} />
       </Routes>
-       <ToastContainer />
-       <ChatFloatingButton onClick={toggleChat} />
+      <ToastContainer />
+      <ChatFloatingButton onClick={toggleChat} />
       <ChatWindow isOpen={isChatOpen} onClose={toggleChat} />
     </Router>
   );
