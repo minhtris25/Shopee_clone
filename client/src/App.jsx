@@ -15,6 +15,7 @@ import ChatWindow from "./components/ChatWindow";
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import OrderDetail from "./pages/OrderDetail"; // Import OrderDetail component
+import Profile from "./pages/Profile";
 
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -33,6 +34,8 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         
+        <Route path="/profile" element={<Profile />} />
+
         <Route path="/order" element={<Order/>} /> 
         
         <Route path="/products/search" element={<SearchResults />} />

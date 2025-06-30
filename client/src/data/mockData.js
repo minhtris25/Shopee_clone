@@ -542,3 +542,14 @@ export const orders = [
   },
 ];
 
+export const Profile = {
+  username: "o5i4ow10",
+  name: "Nguyen",
+  email: "qu*******@gmail.com",
+  phone: "********51",
+  gender: "Nam",
+  birthDay: "15",
+  birthMonth: "10",
+  birthYear: "1990",
+  avatar: "https://via.placeholder.com/150", // Placeholder image
+};
