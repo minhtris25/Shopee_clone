@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\SellerProductController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\UserController; 
 
 
 /*
@@ -116,4 +117,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Nếu bạn muốn người bán có thể cập nhật trạng thái đơn hàng của họ, bạn có thể đặt nó ở đây
     // URL sẽ là /api/orders/{id}/status
     // Route::put('orders/{id}/status', [OrderController::class, 'updateStatus']); // Người bán/Admin cập nhật trạng thái đơn hàng
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Route để lấy thông tin tài khoản của người dùng đã xác thực
+    Route::get('/profile', [UserController::class, 'show']);
+
+    // Bạn có thể thêm các route khác yêu cầu xác thực ở đây
+    // Route::post('/logout', [LoginController::class, 'logout']);
 });
