@@ -16,6 +16,9 @@ import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import OrderDetail from "./pages/OrderDetail"; // Import OrderDetail component
 import Profile from "./pages/Profile";
+import CheckoutPage from "./pages/Checkout"; // 👈 Thêm dòng này ở phần import
+
+
 
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -37,7 +40,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/order" element={<Order/>} /> 
-        
+        <Route path="/checkout" element={<Checkout/>} /> 
         <Route path="/products/search" element={<SearchResults />} />
         <Route path="/seller" element={<SellerDashboard />} />
         <Route path="/order/:id" element={<OrderDetail />} />
