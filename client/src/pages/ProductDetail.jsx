@@ -31,37 +31,62 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-const handleAddToCart = () => {
-  if (!user) {
-    navigate("/login");
-    return;
-  }
+  const handleAddToCart = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const existingIndex = cart.findIndex((item) => item.id === product.id);
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const existingIndex = cart.findIndex((item) => item.id === product.id);
 
-  if (existingIndex !== -1) {
-    cart[existingIndex].quantity += quantity;
-  } else {
-    cart.push({
+    // Prepare the item with shopId, shopName, and seller's name
+    const itemToAdd = {
       id: product.id,
       name: product.name,
       price: Number(product.price),
       quantity: quantity,
       thumbnail: product.thumbnail,
+      shopId: product.shopId || (product.seller ? product.seller.id : "default_shop_id"), // Use product.shopId or seller.id
+      shopName: product.shopName || (product.seller ? product.seller.name + "'s Shop" : "Cửa hàng của tôi"), // Use product.shopName or construct from seller.name
+      ownerName: product.seller ? product.seller.name : "Người bán", // Get seller name from product.seller.name
+    };
+
+    if (existingIndex !== -1) {
+      cart[existingIndex].quantity += quantity;
+    } else {
+      cart.push(itemToAdd);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cart_updated"));
+    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
+  };
+
+  // New function for "Mua ngay"
+  const handleBuyNow = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    // Prepare the product to be sent directly to checkout
+    const itemForCheckout = {
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      quantity: quantity,
+      thumbnail: product.thumbnail,
+      shopId: product.shopId || (product.seller ? product.seller.id : "default_shop_id"), // Use product.shopId or seller.id
+      shopName: product.shopName || (product.seller ? product.seller.name + "'s Shop" : "Cửa hàng của tôi"), // Use product.shopName or construct from seller.name
+      ownerName: product.seller ? product.seller.name : "Người bán", // Get seller name from product.seller.name
+    };
+
+    // Navigate to checkout, passing the selected item(s) in state
+    navigate("/checkout", {
+      state: { selectedItemsForCheckout: [itemForCheckout] },
     });
-  }
-
-  // ✅ Cập nhật localStorage
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  // ✅ Phát sự kiện để Header nhận và cập nhật
-  window.dispatchEvent(new Event("cart_updated")); // 👈 Dòng bạn cần thêm
-
-  // ✅ Thông báo
-  toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
-};
-
+  };
 
   const fakeRating = 4.5;
   const fakeReviewCount = 1200;
@@ -187,7 +212,7 @@ const handleAddToCart = () => {
                   Thêm vào giỏ hàng
                 </button>
                 <button
-                  onClick={() => alert("Chuyển đến trang thanh toán")}
+                  onClick={handleBuyNow}
                   className="flex-1 bg-[#F53D2D] hover:bg-[#e33326] text-white font-semibold py-2 rounded"
                 >
                   Mua ngay
