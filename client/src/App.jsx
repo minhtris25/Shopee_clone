@@ -16,7 +16,7 @@ import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import OrderDetail from "./pages/OrderDetail"; // Import OrderDetail component
 import Profile from "./pages/Profile";
-import CheckoutPage from "./pages/Checkout"; // 👈 Thêm dòng này ở phần import
+import Checkout from "./pages/Checkout"; // 👈 Thêm dòng này ở phần import
 
 
 
